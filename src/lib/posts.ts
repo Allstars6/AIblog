@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter";
 
 const postsDirectory = path.join(process.cwd(), "content/posts");
 
@@ -16,6 +15,37 @@ export interface Post extends PostMeta {
   content: string;
 }
 
+function extractTitle(content: string): string {
+  const match = content.match(/^#\s+(.+)$/m);
+  return match ? match[1].trim() : "";
+}
+
+function extractExcerpt(content: string): string {
+  const lines = content.split("\n");
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (
+      trimmed.length > 10 &&
+      !trimmed.startsWith("#") &&
+      !trimmed.startsWith("```") &&
+      !trimmed.startsWith("-") &&
+      !trimmed.startsWith("*") &&
+      !trimmed.startsWith(">") &&
+      !trimmed.startsWith("---")
+    ) {
+      return trimmed.length > 150 ? trimmed.slice(0, 150) + "..." : trimmed;
+    }
+  }
+  return "";
+}
+
+function formatDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export function getAllPosts(): PostMeta[] {
   if (!fs.existsSync(postsDirectory)) {
     return [];
@@ -29,14 +59,14 @@ export function getAllPosts(): PostMeta[] {
       const slug = fileName.replace(/\.md$/, "");
       const fullPath = path.join(postsDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, "utf8");
-      const { data } = matter(fileContents);
+      const stat = fs.statSync(fullPath);
 
       return {
         slug,
-        title: data.title || slug,
-        date: data.date || "",
-        excerpt: data.excerpt || "",
-        tags: data.tags || [],
+        title: extractTitle(fileContents) || slug,
+        date: formatDate(stat.mtime),
+        excerpt: extractExcerpt(fileContents),
+        tags: [],
       };
     });
 
@@ -55,14 +85,14 @@ export function getPostBySlug(slug: string): Post | null {
   }
 
   const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
+  const stat = fs.statSync(fullPath);
 
   return {
     slug,
-    title: data.title || slug,
-    date: data.date || "",
-    excerpt: data.excerpt || "",
-    tags: data.tags || [],
-    content,
+    title: extractTitle(fileContents) || slug,
+    date: formatDate(stat.mtime),
+    excerpt: extractExcerpt(fileContents),
+    tags: [],
+    content: fileContents,
   };
 }
