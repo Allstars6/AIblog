@@ -1,4 +1,10 @@
 export default function AdSlot() {
+  const adKey = process.env.NEXT_PUBLIC_ADSENSE_KEY;
+
+  if (!adKey) {
+    return null;
+  }
+
   return (
     <div className="ad-container">
       <span className="ad-label">Advertisement</span>

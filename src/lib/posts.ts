@@ -46,6 +46,10 @@ function formatDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+function stripFirstHeading(content: string): string {
+  return content.replace(/^#\s.+\n?/, "");
+}
+
 export function getAllPosts(): PostMeta[] {
   if (!fs.existsSync(postsDirectory)) {
     return [];
@@ -93,6 +97,6 @@ export function getPostBySlug(slug: string): Post | null {
     date: formatDate(stat.mtime),
     excerpt: extractExcerpt(fileContents),
     tags: [],
-    content: fileContents,
+    content: stripFirstHeading(fileContents),
   };
 }
