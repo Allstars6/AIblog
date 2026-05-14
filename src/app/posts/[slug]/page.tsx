@@ -26,6 +26,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 function insertAdIntoHtml(htmlContent: string): string {
+  const adKey = process.env.NEXT_PUBLIC_ADSENSE_KEY;
+  if (!adKey) {
+    return htmlContent;
+  }
+
   const paragraphs = htmlContent.split("</p>");
 
   if (paragraphs.length <= 3) {

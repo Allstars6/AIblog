@@ -20,6 +20,10 @@ function extractTitle(content: string): string {
   return match ? match[1].trim() : "";
 }
 
+function stripFirstHeading(content: string): string {
+  return content.replace(/^#\s+.+(\r?\n|$)/, "");
+}
+
 function extractExcerpt(content: string): string {
   const lines = content.split("\n");
   for (const line of lines) {
@@ -44,10 +48,6 @@ function formatDate(date: Date): string {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
-}
-
-function stripFirstHeading(content: string): string {
-  return content.replace(/^#\s.+\n?/, "");
 }
 
 export function getAllPosts(): PostMeta[] {
