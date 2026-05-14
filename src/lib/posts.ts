@@ -44,6 +44,10 @@ export function getAllPosts(): PostMeta[] {
 }
 
 export function getPostBySlug(slug: string): Post | null {
+  if (!/^[a-zA-Z0-9_-]+$/.test(slug)) {
+    return null;
+  }
+
   const fullPath = path.join(postsDirectory, `${slug}.md`);
 
   if (!fs.existsSync(fullPath)) {
